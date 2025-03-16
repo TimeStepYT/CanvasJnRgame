@@ -240,17 +240,29 @@ class Player {
         }
     }
 
-    doMovement(dt) {
-        if (this.ducking && !game.keysDown.s) {
-            this.unduck()
+    handleJumpHeight() {
+        if (this.gameMode != 0) return
+
+        if (this.gravity > 0 && this.yv < 0) {
+            if (this.spacePress)
+                this.gravity = 0.5
+            else
+                this.gravity = 0.8
         }
+        else if (this.gravity < 0 && this.yv > 0)
+            if (this.spacePress)
+                this.gravity = -0.5
+            else
+                this.gravity = -0.8
+    }
+
+    doMovement(dt) {
+        if (this.ducking && !game.keysDown.s)
+            this.unduck()
 
         this.x += this.xv * dt
 
-        if (this.spacePress && (this.gravity > 0 && this.yv < 0) || (this.gravity < 0 && this.yv > 0))
-            this.gravity = 0.5
-        else
-            this.gravity = 0.8
+        this.handleJumpHeight()
 
         this.yv += this.gravity * dt
         this.y += this.yv * dt
@@ -304,7 +316,7 @@ class Player {
             }
         }
         let wentAirborne = wasStanding && this.floorPlatform == null
-        
+
         if (wentAirborne && this.speedFactor != 1) this.slowDown = true
         else if (this.floorPlatform != null) this.slowDown = false
 
