@@ -23,6 +23,8 @@ class Player {
     maxSpeed = 7
     gameMode = 0
     gravity = 0.8
+    speedFactor = 1
+    slowDown = false
 
     jumpBuffered = false
     spacePress = false
@@ -61,7 +63,7 @@ class Player {
                 if (!this.spacePress) this.jumpBuffered = true
                 this.spacePress = true
                 break
-            case "Enter":
+            case "enter":
                 if (this.gameMode < 2) this.gameMode++
                 else this.gameMode = 0
                 break
@@ -159,6 +161,7 @@ class Player {
             this.y = this.y + this.getDuckStandHeightDifference()
 
         this.ducking = true
+        this.speedFactor = 0.5
     }
 
     unduck() {
@@ -174,6 +177,7 @@ class Player {
                 return
             }
         }
+        this.speedFactor = 1
     }
 
     jump() {
@@ -217,7 +221,7 @@ class Player {
     }
 
     handleFriction(dt) {
-        if (!this.floorPlatform) return
+        if (this.floorPlatform == null) return
 
         if (this.floorPlatform.friction == null) {
             console.error("The platform you are standing on has and undefined friction!")
@@ -243,22 +247,35 @@ class Player {
 
         this.x += this.xv * dt
 
+        if (this.spacePress && (this.gravity > 0 && this.yv < 0) || (this.gravity < 0 && this.yv > 0))
+            this.gravity = 0.5
+        else
+            this.gravity = 0.8
+
         this.yv += this.gravity * dt
         this.y += this.yv * dt
 
         if (this.moveRight) {
-            this.xv += this.accelSpeed * dt
-            if (this.xv > this.maxSpeed)
+            this.xv += this.accelSpeed * this.speedFactor * dt
+            if (this.xv > this.maxSpeed && this.speedFactor == 1)
                 this.xv = this.maxSpeed
+            else if (this.xv > this.maxSpeed * this.speedFactor && this.slowDown) {
+                this.xv = this.maxSpeed * this.speedFactor
+            }
         }
         else if (this.moveLeft) {
-            this.xv -= this.accelSpeed * dt
-            if (this.xv < -this.maxSpeed) {
+            this.xv -= this.accelSpeed * this.speedFactor * dt
+            if (this.xv < -this.maxSpeed && this.speedFactor == 1)
                 this.xv = -this.maxSpeed
+            else if (this.xv < -this.maxSpeed * this.speedFactor && this.slowDown) {
+                this.xv = -this.maxSpeed * this.speedFactor
             }
         }
 
-        if ((this.moveRight && this.xv < 0) || (this.moveLeft && this.xv > 0) || (!this.moveLeft && !this.moveRight))
+        if ((this.moveRight && this.xv < 0) ||
+            (this.moveLeft && this.xv > 0) ||
+            (!this.moveLeft && !this.moveRight) ||
+            (Math.abs(this.xv) > Math.abs(this.maxSpeed * this.speedFactor)))
             this.handleFriction(dt)
 
         if (game.showHitboxes) {
@@ -275,18 +292,26 @@ class Player {
         this.prevPlayer = this.getPlayerObject()
         this.doMovement(game.dt)
 
-        let touchingAnything = false
+        let wasStanding = this.floorPlatform != null
+        this.floorPlatform = null
+
         for (let platform of game.level.platforms) {
-            const steps = 4 // Mario 64 style
+            const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
             for (let i = 0; i < steps; i++) {
                 if (this.handleCollision(platform, game.dt * (i / steps))) {
-                    touchingAnything = true
                     break
                 }
             }
         }
+        let wentAirborne = wasStanding && this.floorPlatform == null
+        
+        if (wentAirborne && this.speedFactor != 1) this.slowDown = true
+        else if (this.floorPlatform != null) this.slowDown = false
 
-        if (!touchingAnything) this.floorPlatform = null
+        if (this.floorPlatform != null && game.showHitboxes) {
+            this.floorPlatform.setColor("blue").draw()
+            this.floorPlatform.setColor("black")
+        }
 
         if (this.y > canvas.height) {
             let index = game.players.indexOf(this)
@@ -526,9 +551,10 @@ class Game {
         delete this.aboutToAdd
     }
     onkeydown(e) {
-        this.keysDown[e.key] = true
-        this.players.forEach(p => p.onkeydown(e.key))
-        switch (e.key) {
+        let key = e.key.toLowerCase()
+        this.keysDown[key] = true
+        this.players.forEach(p => p.onkeydown(key))
+        switch (key) {
             case "r":
                 if (!this.level.platforms[this.level.platforms.length - 1].isMainLevel || this.editMode)
                     this.level.platforms.pop()
@@ -543,8 +569,9 @@ class Game {
         }
     }
     onkeyup(e) {
-        this.keysDown[e.key] = false
-        this.players.forEach(p => p.onkeyup(e.key))
+        let key = e.key.toLowerCase()
+        this.keysDown[key] = false
+        this.players.forEach(p => p.onkeyup(key))
     }
 
     updateDeltaTime() {
