@@ -1,18 +1,24 @@
-var canvas = document.getElementById("game")
+var canvas = document.getElementById("gameCanvas")
 var ctx = canvas.getContext("2d")
 
 class Player {
-    constructor() {
+    constructor(game) {
+        this.game = game
+
+        this.setPosition(game.level.origin)
+
         // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
         if (game.keysDown == null) return
+        
         for (let [key, active] of Object.entries(game.keysDown)) {
             if (active)
                 this.onkeydown(key)
         }
     }
 
-    x = 100
-    y = canvas.height - 200
+    game = null
+    x = null
+    y = null
     xv = 0
     yv = 0
     w = 50
@@ -486,7 +492,8 @@ class Game {
         onmouseup = e => this.onmouseup(e)
 
         this.initLevels()
-        this.players.push(new Player())
+        
+        this.createPlayer()
 
         requestAnimationFrame(() => this.animate())
     }
@@ -508,9 +515,16 @@ class Game {
     levels = []
     levelNumber = 0
 
-    level = []
+    level = null
 
     players = []
+
+    createPlayer() {
+        let player = new Player(this)
+        this.players.push(player)
+
+        return player
+    }
 
     onmousemove(e) {
         this.rect = canvas.getBoundingClientRect()
@@ -572,9 +586,7 @@ class Game {
                     this.level.platforms.pop()
                 break
             case "p":
-                let newPlayer = new Player()
-                newPlayer.game = this
-                this.players.push(newPlayer)
+                this.createPlayer()
                 break
             default:
             // console.log(e.key)
@@ -597,8 +609,8 @@ class Game {
     switchLevel(level) {
         this.levelNumber = level % this.levels.length
         this.players = []
-        this.players.push(new Player().setPosition(this.level.origin))
         this.initPlatforms()
+        this.players.push(new Player().setPosition(this.level.origin))
     }
 
     initLevels() {
@@ -679,6 +691,5 @@ class Game {
         requestAnimationFrame(() => this.animate())
     }
 }
-
-game = new Game()
+var game = new Game()
 // game.showHitboxes = true
