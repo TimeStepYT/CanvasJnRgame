@@ -20,9 +20,6 @@ export default class Game {
         requestAnimationFrame(() => this.animate())
     }
 
-    canvas = null
-    ctx = null
-
     showHitboxes = false
     restart = false
     xPos = null
