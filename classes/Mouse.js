@@ -1,6 +1,6 @@
 import Rect from "./Rect.js"
 import Platform from "./Platform.js"
-import {canvas} from "../script.js"
+import { canvas } from "../script.js"
 
 export default class Mouse {
     constructor(game) {
@@ -14,7 +14,7 @@ export default class Mouse {
     xPos = null
     yPos = null
 
-    aboutToAdd = null
+    rect = null
 
     onmousemove(e) {
         this.game.rect = canvas.getBoundingClientRect()
@@ -23,47 +23,64 @@ export default class Mouse {
         this.yPos = e.clientY - rect.top - 2
 
         if (this.clicking) {
-            this.aboutToAdd.w = this.xPos - this.aboutToAdd.x
-            this.aboutToAdd.h = this.yPos - this.aboutToAdd.y
+            this.rect.w = this.xPos - this.rect.x
+            this.rect.h = this.yPos - this.rect.y
         }
     }
     onmousedown(e) {
-        this.clicking = true
-        this.aboutToAdd = new Rect().create(this.xPos, this.yPos, 0, 0).setColor("blue")
+        switch (e.button) {
+            case 0:
+                this.clicking = true
+                this.rect = new Rect().create(this.xPos, this.yPos, 0, 0).setColor("blue")
+                break
+        }
     }
     onmouseup(e) {
-        this.clicking = false
-        if (this.aboutToAdd.w < 0) {
-            this.aboutToAdd.w = -this.aboutToAdd.w
-            this.aboutToAdd.x -= this.aboutToAdd.w
-        }
-        if (this.aboutToAdd.h < 0) {
-            this.aboutToAdd.h = -this.aboutToAdd.h
-            this.aboutToAdd.y -= this.aboutToAdd.h
-        }
-        if (this.aboutToAdd.w < 5) this.aboutToAdd.w = 5
-        if (this.aboutToAdd.h < 5) this.aboutToAdd.h = 5
+        switch (e.button) {
+            case 0:
+                this.clicking = false
+                if (this.rect.w < 0) {
+                    this.rect.w = -this.rect.w
+                    this.rect.x -= this.rect.w
+                }
+                if (this.rect.h < 0) {
+                    this.rect.h = -this.rect.h
+                    this.rect.y -= this.rect.h
+                }
+                if (this.rect.w < 5) this.rect.w = 5
+                if (this.rect.h < 5) this.rect.h = 5
 
-        this.aboutToAdd.x = Math.round(this.aboutToAdd.x)
-        this.aboutToAdd.y = Math.round(this.aboutToAdd.y)
-        this.aboutToAdd.h = Math.round(this.aboutToAdd.h)
-        this.aboutToAdd.w = Math.round(this.aboutToAdd.w)
+                this.rect.x = Math.round(this.rect.x)
+                this.rect.y = Math.round(this.rect.y)
+                this.rect.h = Math.round(this.rect.h)
+                this.rect.w = Math.round(this.rect.w)
+
+                this.createPlatform()
+
+                this.rect = null
+                break
+        }
+    }
+
+    createPlatform() {
+        const gameWindow = new Rect().create(0, 0, canvas.width, canvas.height)
+
+        if (this.rect.w == 5 && this.rect.h == 5) return
+        if (!this.rect.isColliding(gameWindow)) return
 
         let canCreateRect = true
+        let platform = new Platform().fromObject(this.rect)
 
-        let ataPlatform = new Platform().fromObject(this.aboutToAdd)
-        if (this.game.editMode)
-            ataPlatform.setMainLevel(true)
+        if (this.game.editMode) platform.setMainLevel(true)
 
-        for (let player of this.game.players) {
-            if (ataPlatform.isColliding(player)) {
+        for (const player of this.game.players) {
+            if (platform.isColliding(player)) {
                 canCreateRect = false
                 break
             }
         }
-        if (canCreateRect)
-            this.game.level.platforms.push(ataPlatform.setColor("black"))
 
-        delete this.aboutToAdd
+        if (canCreateRect)
+            this.game.level.platforms.push(platform.setColor("black"))
     }
 }

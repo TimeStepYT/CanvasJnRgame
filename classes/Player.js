@@ -1,11 +1,11 @@
-import {canvas} from "../script.js"
+import { canvas } from "../script.js"
 import Rect from "./Rect.js"
-import Keyboard from "./Keyboard.js"
+import Trigger from "./Trigger.js"
 
 export default class Player {
     constructor(game) {
         this.game = game
-
+        console.log(game)
         this.setPosition(game.level.origin)
 
         // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
@@ -24,27 +24,28 @@ export default class Player {
     yv = 0
     w = 50
     h = 100
+    terminalVelocity = 20
     standHeight = 100
     duckHeight = 50
     accelSpeed = 0.25
-    maxSpeed = 7
+    jumpHeight = 13
+    maxSpeed = 10
     gameMode = 0
     normalGravity = 0.8
-    holdGravity = 0.5
+    holdGravity = 0.3
     gravity = this.normalGravity
+    changeGravity = false
     speedFactor = 1
+    ducking = false
     slowDown = false
+    dead = false
 
     jumpBuffered = false
-    spacePress = false
-
+    jumpHeld = false
     moveLeft = false
     moveRight = false
 
     prevPlayer = null
-
-    ducking = false
-
     floorPlatform = null
 
     setPosition(point) {
@@ -69,8 +70,8 @@ export default class Player {
                 break
             case " ":
             case "w":
-                if (!this.spacePress) this.jumpBuffered = true
-                this.spacePress = true
+                if (!this.jumpHeld) this.jumpBuffered = true
+                this.jumpHeld = true
                 break
             case "enter":
                 if (this.gameMode < 2) this.gameMode++
@@ -98,7 +99,7 @@ export default class Player {
                 break
             case " ":
             case "w":
-                this.spacePress = false
+                this.jumpHeld = false
                 this.jumpBuffered = false
                 break
         }
@@ -118,6 +119,12 @@ export default class Player {
         const futurePlayerRect = new Rect().create(futureX, futureY, this.w, this.h)
 
         if (!futurePlayerRect.isColliding(platform)) return false
+
+        if (platform instanceof Trigger) {
+            if (platform.func == null) return
+            platform.func(this.game)
+            return true
+        }
 
         const dx = ((futureX + this.w) - (platform.x + platform.w)) / 2 // center of player - center of platform
         const dy = ((futureY + this.h) - (platform.y + platform.h)) / 2 // center of player - center of platform
@@ -192,7 +199,8 @@ export default class Player {
     jump() {
         switch (this.gameMode) {
             case 0: // Normal
-                this.yv = -15 * this.gravity
+                this.yv = -this.jumpHeight * this.gravity
+                this.changeGravity = true
                 break
             case 1: // GD Ball
                 this.gravity = -this.gravity
@@ -250,21 +258,23 @@ export default class Player {
     }
 
     handleJumpHeight() {
-        if (this.gameMode != 0) return
+        if (this.gameMode != 0 || !this.changeGravity) return
 
-        if (this.gravity > 0 && this.yv <= 0) {
-            if (this.spacePress) {
-                console.log("Working as expected")
+        if (this.gravity > 0) {
+            if (this.jumpHeld && this.yv < 0)
                 this.gravity = this.holdGravity
-            }
-            else
+            else {
+                this.changeGravity = false
                 this.gravity = this.normalGravity
+            }
         }
-        else if (this.gravity < 0 && this.yv >= 0)
-            if (this.spacePress)
+        else if (this.gravity < 0)
+            if (this.jumpHeld && this.yv > 0)
                 this.gravity = -this.holdGravity
-            else
+            else {
+                this.changeGravity = false
                 this.gravity = -this.normalGravity
+            }
     }
 
     doMovement(dt) {
@@ -276,6 +286,12 @@ export default class Player {
         this.handleJumpHeight()
 
         this.yv += this.gravity * dt
+
+        if (this.gravity > 0)
+            this.yv = Math.min(this.yv, this.terminalVelocity)
+        else if (this.gravity < 0)
+            this.yv = Math.max(this.yv, -this.terminalVelocity)
+
         this.y += this.yv * dt
 
         if (this.moveRight) {
@@ -336,12 +352,8 @@ export default class Player {
             this.floorPlatform.setColor("black")
         }
 
-        if (this.y > canvas.height) {
-            let index = this.game.players.indexOf(this)
-            if (index >= 0)
-                this.game.players.splice(index, 0)
-            else console.log("noo")
-        }
+        if (this.y > canvas.height) 
+            this.dead = true
 
         let color = "black"
         switch (this.gameMode) {

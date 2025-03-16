@@ -11,7 +11,10 @@ export default class Keyboard {
     onkeydown(e) {
         let key = e.key.toLowerCase()
         this.keysDown[key] = true
-        this.game.players.forEach(p => p.onkeydown(key))
+        
+        for (const player of this.game.players)
+            player.onkeydown(key)
+        
         switch (key) {
             case "r":
                 if (!this.game.level.platforms[this.game.level.platforms.length - 1].isMainLevel || this.game.editMode)

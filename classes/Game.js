@@ -1,5 +1,7 @@
 import Player from "./Player.js"
 import Platform from "./Platform.js"
+import Trigger from "./Trigger.js"
+import FinishTrigger from "./FinishTrigger.js"
 import Rect from "./Rect.js"
 import Level from "./Level.js"
 import Point from "./Point.js"
@@ -24,15 +26,12 @@ export default class Game {
 
     rect = null
     showHitboxes = false
-    restart = false
-    clicking = false
     editMode = false
 
-    levels = []
     levelNumber = 0
-    
+    levels = []
     level = null
-    
+
     players = []
 
     dt = new DeltaTime(this)
@@ -64,9 +63,8 @@ export default class Game {
 
     switchLevel(level) {
         this.levelNumber = level % this.levels.length
-        this.players = []
         this.initPlatforms()
-        this.players.push(new Player().setPosition(this.level.origin))
+        this.players = [this.createPlayer().setPosition(this.level.origin)]
     }
 
     initLevels() {
@@ -85,8 +83,8 @@ export default class Game {
             new Platform().create(1238, 158, 74, 64),
             new Platform().create(606, 340, 41, 72),
             new Platform().create(139, 186, 57, 20),
-            new Platform().create(1108, 65, 98, 50),
-            new Platform().create(1416, 313, 20, 20)
+            new Platform().create(1416, 313, 20, 20),
+            new FinishTrigger().create(1108, 65, 98, 50)
         ],
             new Point().create(102, 599)
         )
@@ -104,7 +102,16 @@ export default class Game {
             new Platform().create(-1, 36, 60, 443),
             new Platform().create(50, 30, 82, 104),
             new Platform().create(213, 342, 283, 12),
-            new Platform().create(758, 292, 562, 23)
+            new Platform().create(758, 292, 562, 23),
+            new FinishTrigger().create(1201, 59, 32, 233)
+        ],
+            new Point().create(42, 599)
+        )
+        this.levels.push(level)
+        level = new Level().create([
+            new Platform().create(0, 699, 1315, 25),
+            new Platform().create(-9, -7, 1291, 16),
+            new FinishTrigger().create(604, 430, 99, 98)
         ],
             new Point().create(42, 599)
         )
@@ -125,18 +132,27 @@ export default class Game {
         for (let i of this.level.platforms) {
             i.draw()
         }
-        if (this.mouse.aboutToAdd)
-            this.mouse.aboutToAdd.draw()
+        if (this.mouse.rect)
+            this.mouse.rect.draw()
     }
 
     drawPlayers() {
-        for (let player of this.players) {
+        for (let i = 0; i < this.players.length; i++) {
+            let player = this.players[i]
             player.drawPlayer()
+            if (player.dead) {
+                this.players.splice(i, 1)
+                i--
+            }
         }
     }
 
+    drawBackground(color) {
+        return new Rect().create(0, 0, canvas.width, canvas.height).setColor(color).draw()
+    }
+
     drawAll() {
-        new Rect().create(0, 0, canvas.width, canvas.height).setColor("#0098ff").draw()
+        this.drawBackground("#0098ff")
         this.drawPlatforms()
         this.drawPlayers()
     }
