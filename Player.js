@@ -1,4 +1,5 @@
-import {Game, Rect} from "./script.js"
+import {canvas} from "./script.js"
+import Rect from "./Rect.js"
 
 export default class Player {
     constructor(game) {
@@ -334,7 +335,7 @@ export default class Player {
             this.floorPlatform.setColor("black")
         }
 
-        if (this.y > this.game.canvas.height) {
+        if (this.y > canvas.height) {
             let index = this.game.players.indexOf(this)
             if (index >= 0)
                 this.game.players.splice(index, 0)
