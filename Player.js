@@ -1,5 +1,6 @@
 import {canvas} from "./script.js"
 import Rect from "./Rect.js"
+import Keyboard from "./Keyboard.js"
 
 export default class Player {
     constructor(game) {
@@ -8,9 +9,9 @@ export default class Player {
         this.setPosition(game.level.origin)
 
         // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
-        if (game.keysDown == null) return
+        if (game.keyboard.keysDown == null) return
 
-        for (let [key, active] of Object.entries(game.keysDown)) {
+        for (let [key, active] of Object.entries(game.keyboard.keysDown)) {
             if (active)
                 this.onkeydown(key)
         }
@@ -84,12 +85,12 @@ export default class Player {
         switch (key) {
             case "d":
                 this.moveRight = false
-                if (this.game.keysDown.a)
+                if (this.game.keyboard.keysDown.a)
                     this.moveLeft = true
                 break
             case "a":
                 this.moveLeft = false
-                if (this.game.keysDown.d)
+                if (this.game.keyboard.keysDown.d)
                     this.moveRight = true
                 break
             case "s":
@@ -267,7 +268,7 @@ export default class Player {
     }
 
     doMovement(dt) {
-        if (this.ducking && !this.game.keysDown.s)
+        if (this.ducking && !this.game.keyboard.keysDown.s)
             this.unduck()
 
         this.x += this.xv * dt
@@ -312,7 +313,7 @@ export default class Player {
 
     drawPlayer() {
         this.prevPlayer = this.getPlayerObject()
-        this.doMovement(this.game.dt)
+        this.doMovement(this.game.dt.get())
 
         let wasStanding = this.floorPlatform != null
         this.floorPlatform = null
@@ -320,7 +321,7 @@ export default class Player {
         for (let platform of this.game.level.platforms) {
             const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
             for (let i = 0; i < steps; i++) {
-                if (this.handleCollision(platform, this.game.dt * (i / steps))) {
+                if (this.handleCollision(platform, this.game.dt.get() * (i / steps))) {
                     break
                 }
             }

@@ -3,6 +3,9 @@ import Platform from "./Platform.js"
 import Rect from "./Rect.js"
 import Level from "./Level.js"
 import Point from "./Point.js"
+import Mouse from "./Mouse.js"
+import Keyboard from "./Keyboard.js"
+import DeltaTime from "./DeltaTime.js"
 import { canvas } from "./script.js"
 
 export default class Game {
@@ -14,32 +17,27 @@ export default class Game {
         onmouseup = e => this.onmouseup(e)
 
         this.initLevels()
-
         this.createPlayer()
 
         requestAnimationFrame(() => this.animate())
     }
 
+    rect = null
     showHitboxes = false
     restart = false
-    xPos = null
-    yPos = null
     clicking = false
-    aboutToAdd = null
     editMode = false
-
-    keysDown = {}
-
-    now = 0
-    dt = 2.4
-    lastUpdated = 0
 
     levels = []
     levelNumber = 0
-
+    
     level = null
-
+    
     players = []
+
+    dt = new DeltaTime(this)
+    mouse = new Mouse(this)
+    keyboard = new Keyboard(this)
 
     createPlayer() {
         let player = new Player(this)
@@ -49,83 +47,19 @@ export default class Game {
     }
 
     onmousemove(e) {
-        this.rect = canvas.getBoundingClientRect()
-        let rect = this.rect
-        this.xPos = e.clientX - rect.left - 2
-        this.yPos = e.clientY - rect.top - 2
-
-        if (this.clicking) {
-            this.aboutToAdd.w = this.xPos - this.aboutToAdd.x
-            this.aboutToAdd.h = this.yPos - this.aboutToAdd.y
-        }
+        this.mouse.onmousemove(e)
     }
     onmousedown(e) {
-        this.clicking = true
-        this.aboutToAdd = new Rect().create(this.xPos, this.yPos, 0, 0).setColor("blue")
+        this.mouse.onmousedown(e)
     }
     onmouseup(e) {
-        this.clicking = false
-        if (this.aboutToAdd.w < 0) {
-            this.aboutToAdd.w = -this.aboutToAdd.w
-            this.aboutToAdd.x -= this.aboutToAdd.w
-        }
-        if (this.aboutToAdd.h < 0) {
-            this.aboutToAdd.h = -this.aboutToAdd.h
-            this.aboutToAdd.y -= this.aboutToAdd.h
-        }
-        if (this.aboutToAdd.w < 5) this.aboutToAdd.w = 5
-        if (this.aboutToAdd.h < 5) this.aboutToAdd.h = 5
-
-        this.aboutToAdd.x = Math.round(this.aboutToAdd.x)
-        this.aboutToAdd.y = Math.round(this.aboutToAdd.y)
-        this.aboutToAdd.h = Math.round(this.aboutToAdd.h)
-        this.aboutToAdd.w = Math.round(this.aboutToAdd.w)
-
-        let canCreateRect = true
-
-        let ataPlatform = new Platform().fromObject(this.aboutToAdd)
-        if (this.editMode)
-            ataPlatform.setMainLevel(true)
-
-        for (let player of this.players) {
-            if (ataPlatform.isColliding(player)) {
-                canCreateRect = false
-                break
-            }
-        }
-        if (canCreateRect)
-            this.level.platforms.push(ataPlatform.setColor("black"))
-
-        delete this.aboutToAdd
+        this.mouse.onmouseup(e)
     }
     onkeydown(e) {
-        let key = e.key.toLowerCase()
-        this.keysDown[key] = true
-        this.players.forEach(p => p.onkeydown(key))
-        switch (key) {
-            case "r":
-                if (!this.level.platforms[this.level.platforms.length - 1].isMainLevel || this.editMode)
-                    this.level.platforms.pop()
-                break
-            case "p":
-                this.createPlayer()
-                break
-            default:
-            // console.log(e.key)
-        }
+        this.keyboard.onkeydown(e)
     }
     onkeyup(e) {
-        let key = e.key.toLowerCase()
-        this.keysDown[key] = false
-        this.players.forEach(p => p.onkeyup(key))
-    }
-
-    updateDeltaTime() {
-        this.now = performance.now()
-        this.dt = ((this.now - this.lastUpdated) / 10) * 0.6
-        if (this.dt > 4) this.dt = 4 // Don't explode when tabbing out
-        // this.dt = 0.2
-        this.lastUpdated = this.now
+        this.keyboard.onkeyup(e)
     }
 
     switchLevel(level) {
@@ -191,8 +125,8 @@ export default class Game {
         for (let i of this.level.platforms) {
             i.draw()
         }
-        if (this.aboutToAdd)
-            this.aboutToAdd.draw()
+        if (this.mouse.aboutToAdd)
+            this.mouse.aboutToAdd.draw()
     }
 
     drawPlayers() {
@@ -208,7 +142,7 @@ export default class Game {
     }
 
     animate() {
-        this.updateDeltaTime()
+        this.dt.updateDeltaTime()
         this.drawAll()
         requestAnimationFrame(() => this.animate())
     }
