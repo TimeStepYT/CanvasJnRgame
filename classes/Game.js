@@ -6,7 +6,7 @@ import Point from "./Point.js"
 import Mouse from "./Mouse.js"
 import Keyboard from "./Keyboard.js"
 import DeltaTime from "./DeltaTime.js"
-import { canvas } from "./script.js"
+import { canvas } from "../script.js"
 
 export default class Game {
     constructor() {

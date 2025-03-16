@@ -1,6 +1,6 @@
 import Rect from "./Rect.js"
 import Platform from "./Platform.js"
-import {canvas} from "./script.js"
+import {canvas} from "../script.js"
 
 export default class Mouse {
     constructor(game) {

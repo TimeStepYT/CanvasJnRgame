@@ -1,4 +1,4 @@
-import {ctx} from "./script.js"
+import {ctx} from "../script.js"
 
 export default class Rect {
     x = null

@@ -1,4 +1,4 @@
-import {canvas} from "./script.js"
+import {canvas} from "../script.js"
 import Rect from "./Rect.js"
 import Keyboard from "./Keyboard.js"
 
