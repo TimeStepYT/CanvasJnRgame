@@ -3,21 +3,23 @@ import Rect from "./Rect.js"
 import Trigger from "./Trigger.js"
 
 export default class Player {
-    constructor(game) {
-        this.game = game
-        console.log(game)
-        this.setPosition(game.level.origin)
+    constructor(scene) {
+        this.game = scene.game
+        this.scene = scene
+        this.setPosition(scene.level.origin)
 
         // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
-        if (game.keyboard.keysDown == null) return
+        if (scene.game.keyboard.keysDown == null) return
 
-        for (let [key, active] of Object.entries(game.keyboard.keysDown)) {
+        for (let [key, active] of Object.entries(scene.game.keyboard.keysDown)) {
             if (active)
                 this.onkeydown(key)
         }
     }
 
     game = null
+    scene = null
+
     x = null
     y = null
     xv = 0
@@ -122,7 +124,7 @@ export default class Player {
 
         if (platform instanceof Trigger) {
             if (platform.func == null) return
-            platform.func(this.game)
+            platform.func(this.scene)
             return true
         }
 
@@ -187,7 +189,7 @@ export default class Player {
         this.h = this.standHeight
         this.ducking = false
 
-        for (const platform of this.game.level.platforms) {
+        for (const platform of this.scene.level.platforms) {
             if (platform.isColliding(this)) {
                 this.duck()
                 return
@@ -334,7 +336,7 @@ export default class Player {
         let wasStanding = this.floorPlatform != null
         this.floorPlatform = null
 
-        for (let platform of this.game.level.platforms) {
+        for (let platform of this.scene.level.platforms) {
             const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
             for (let i = 0; i < steps; i++) {
                 if (this.handleCollision(platform, this.game.dt.get() * (i / steps))) {

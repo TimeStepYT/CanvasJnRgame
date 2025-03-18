@@ -1,5 +1,6 @@
 import Rect from "./Rect.js"
 import Platform from "./Platform.js"
+import GameplayScene from "./GameplayScene.js"
 import { canvas } from "../script.js"
 
 export default class Mouse {
@@ -73,14 +74,19 @@ export default class Mouse {
 
         if (this.game.editMode) platform.setMainLevel(true)
 
-        for (const player of this.game.players) {
-            if (platform.isColliding(player)) {
-                canCreateRect = false
-                break
+        if (this.game.players != null)
+            for (const player of this.game.players) {
+                if (platform.isColliding(player)) {
+                    canCreateRect = false
+                    break
+                }
+            }
+
+        if (canCreateRect) {
+            for (const scene of this.game.scenes) {
+                if (scene instanceof GameplayScene)
+                    scene.level.platforms.push(platform.setColor("black"))
             }
         }
-
-        if (canCreateRect)
-            this.game.level.platforms.push(platform.setColor("black"))
     }
 }

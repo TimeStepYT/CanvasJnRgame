@@ -1,4 +1,5 @@
-
+import Game from "./Game.js"
+import GameplayScene from "./GameplayScene.js"
 
 export default class Keyboard {
     constructor(game) {
@@ -6,22 +7,34 @@ export default class Keyboard {
     }
 
     game = null
+
     keysDown = {}
 
     onkeydown(e) {
         let key = e.key.toLowerCase()
         this.keysDown[key] = true
-        
-        for (const player of this.game.players)
-            player.onkeydown(key)
-        
+
+        this.game.forScenes(scene => {
+            if (scene.players != null)
+                for (const player of scene.players)
+                    player.onkeydown(key)
+        }, GameplayScene)
+
         switch (key) {
             case "r":
-                if (!this.game.level.platforms[this.game.level.platforms.length - 1].isMainLevel || this.game.editMode)
-                    this.game.level.platforms.pop()
+                for (const scene of this.game.scenes) {
+                    if (!scene instanceof GameplayScene) continue
+
+                    if (!scene.level.platforms[scene.level.platforms.length - 1].isMainLevel || this.game.editMode)
+                        scene.level.platforms.pop()
+                }
                 break
             case "p":
-                this.game.createPlayer()
+                for (const scene of this.game.scenes) {
+                    if (!scene instanceof GameplayScene) continue
+
+                    scene.createPlayer()
+                }
                 break
             default:
             // console.log(e.key)
@@ -30,6 +43,11 @@ export default class Keyboard {
     onkeyup(e) {
         let key = e.key.toLowerCase()
         this.keysDown[key] = false
-        this.game.players.forEach(p => p.onkeyup(key))
+
+        for (const scene of this.game.scenes) {
+            if (!scene instanceof GameplayScene) continue
+
+            scene.players.forEach(p => p.onkeyup(key))
+        }
     }
 }
