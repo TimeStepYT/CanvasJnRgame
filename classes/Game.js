@@ -1,7 +1,9 @@
-import GameplayScene from "./GameplayScene.js"
+import Rect from "./Rect.js"
+import MainMenuLayer from "./MainMenuLayer.js"
 import Mouse from "./Mouse.js"
 import Keyboard from "./Keyboard.js"
 import DeltaTime from "./DeltaTime.js"
+import { canvas } from "../script.js"
 
 export default class Game {
     constructor() {
@@ -11,13 +13,14 @@ export default class Game {
         onmousedown = e => this.onmousedown(e)
         onmouseup = e => this.onmouseup(e)
 
-        this.scenes.push(new GameplayScene(this))
+        this.layers.push(new MainMenuLayer(this))
         requestAnimationFrame(() => this.animate())
     }
 
-    scenes = []
+    layers = []
     
     rect = null
+    windowSize = new Rect().create(0, 0, canvas.width, canvas.height)
     showHitboxes = false
     
     dt = new DeltaTime(this)
@@ -44,22 +47,23 @@ export default class Game {
         this.keyboard.onkeyup(e)
     }
 
-    drawScenes() {
-        for (const scene of this.scenes)
-            scene.draw()
+    drawLayers() {
+        this.forLayers(layer => {
+            layer.draw()
+        })
     }
 
-    forScenes(func, sceneType = null) {
-        for (const scene of this.scenes) {
-            if (sceneType != null && !scene instanceof sceneType) continue
+    forLayers(func, layerType = null) {
+        for (const layer of this.layers) {
+            if (layerType != null && !(layer instanceof layerType)) continue
 
-            func(scene)
+            func(layer)
         }
     }
 
     animate() {
         this.dt.updateDeltaTime()
-        this.drawScenes()
+        this.drawLayers()
         requestAnimationFrame(() => this.animate())
     }
 }

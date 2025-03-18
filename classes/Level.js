@@ -8,4 +8,11 @@ export default class Level {
 
         return this
     }
+
+    fromObject(obj) {
+        this.platforms = [...obj.platforms]
+        this.origin = obj.origin
+
+        return this
+    }
 }

@@ -1,5 +1,5 @@
 import Game from "./Game.js"
-import GameplayScene from "./GameplayScene.js"
+import GameplayLayer from "./GameplayLayer.js"
 
 export default class Keyboard {
     constructor(game) {
@@ -14,27 +14,25 @@ export default class Keyboard {
         let key = e.key.toLowerCase()
         this.keysDown[key] = true
 
-        this.game.forScenes(scene => {
-            if (scene.players != null)
-                for (const player of scene.players)
+        this.game.forLayers(layer => {
+            if (layer.players != null)
+                for (const player of layer.players)
                     player.onkeydown(key)
-        }, GameplayScene)
+        }, GameplayLayer)
 
         switch (key) {
             case "r":
-                for (const scene of this.game.scenes) {
-                    if (!scene instanceof GameplayScene) continue
+                this.game.forLayers(layer => {
+                    if (!layer.level.platforms[layer.level.platforms.length - 1].isMainLevel || this.game.editMode)
+                        layer.level.platforms.pop()
 
-                    if (!scene.level.platforms[scene.level.platforms.length - 1].isMainLevel || this.game.editMode)
-                        scene.level.platforms.pop()
-                }
+                }, GameplayLayer)
+
                 break
             case "p":
-                for (const scene of this.game.scenes) {
-                    if (!scene instanceof GameplayScene) continue
-
-                    scene.createPlayer()
-                }
+                this.game.forLayers(layer => {
+                    layer.createPlayer()
+                }, GameplayLayer)
                 break
             default:
             // console.log(e.key)
@@ -43,11 +41,8 @@ export default class Keyboard {
     onkeyup(e) {
         let key = e.key.toLowerCase()
         this.keysDown[key] = false
-
-        for (const scene of this.game.scenes) {
-            if (!scene instanceof GameplayScene) continue
-
-            scene.players.forEach(p => p.onkeyup(key))
-        }
+        this.game.forLayers(layer => {
+            layer.players.forEach(p => p.onkeyup(key))
+        }, GameplayLayer)
     }
 }

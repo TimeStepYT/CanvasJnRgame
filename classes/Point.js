@@ -1,3 +1,5 @@
+import Rect from "./Rect.js"
+
 export default class Point {
     x = null
     y = null
@@ -7,5 +9,9 @@ export default class Point {
         this.y = y
 
         return this
+    }
+
+    getRect() {
+        return new Rect().create(this.x, this.y, 0, 0)
     }
 }

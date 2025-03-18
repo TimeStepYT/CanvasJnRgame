@@ -1,4 +1,5 @@
 import { canvas } from "../script.js"
+import GameplayLayer from "./GameplayLayer.js"
 import Rect from "./Rect.js"
 import Trigger from "./Trigger.js"
 
@@ -212,7 +213,7 @@ export default class Player {
                 let i = 0;
                 while (true) {
                     const futurePlayerY = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
-                    for (const platform of this.game.level.platforms) {
+                    for (const platform of this.scene.level.platforms) {
                         if (!futurePlayerY.isColliding(platform))
                             continue
 
@@ -354,7 +355,7 @@ export default class Player {
             this.floorPlatform.setColor("black")
         }
 
-        if (this.y > canvas.height) 
+        if (this.y > canvas.height)
             this.dead = true
 
         let color = "black"

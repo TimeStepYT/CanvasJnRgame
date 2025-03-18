@@ -1,4 +1,4 @@
-import Scene from "./Scene.js"
+import Layer from "./Layer.js"
 import Level from "./Level.js"
 import Platform from "./Platform.js"
 import FinishTrigger from "./FinishTrigger.js"
@@ -7,7 +7,7 @@ import Point from "./Point.js"
 import Player from "./Player.js"
 import { canvas } from "../script.js"
 
-export default class GameplayScene extends Scene {
+export default class GameplayLayer extends Layer {
 	constructor(game) {
 		super(game)
 
@@ -23,6 +23,69 @@ export default class GameplayScene extends Scene {
 
 	players = []
 
+	rect = null
+
+	createPlatform() {
+		const gameWindow = new Rect().create(0, 0, canvas.width, canvas.height)
+
+		if (this.rect.w == 5 && this.rect.h == 5) return
+		if (!this.rect.isColliding(gameWindow)) return
+
+		let canCreateRect = true
+		let platform = new Platform().fromObject(this.rect)
+
+		if (this.game.editMode) platform.setMainLevel(true)
+
+		if (this.game.players != null)
+			for (const player of this.game.players) {
+				if (platform.isColliding(player)) {
+					canCreateRect = false
+					break
+				}
+			}
+
+		if (canCreateRect) {
+			this.game.forLayers(layer => {
+				layer.level.platforms.push(platform.setColor("black"))
+			}, GameplayLayer)
+		}
+	}
+
+	onmousedown(e) {
+		this.rect = new Rect().create(this.game.mouse.pos.x, this.game.mouse.pos.y, 0, 0).setColor("blue")
+	}
+
+	onmousemove(e) {
+		let mouse = this.game.mouse
+		if (mouse.clicking && this.rect != null) {
+            this.rect.w = mouse.pos.x - this.rect.x
+            this.rect.h = mouse.pos.y - this.rect.y
+        }
+	}
+
+	onmouseup(e) {
+		if (this.rect == null) return
+
+		if (this.rect.w < 0) {
+			this.rect.w = -this.rect.w
+			this.rect.x -= this.rect.w
+		}
+		if (this.rect.h < 0) {
+			this.rect.h = -this.rect.h
+			this.rect.y -= this.rect.h
+		}
+		if (this.rect.w < 5) this.rect.w = 5
+		if (this.rect.h < 5) this.rect.h = 5
+
+		this.rect.x = Math.round(this.rect.x)
+		this.rect.y = Math.round(this.rect.y)
+		this.rect.h = Math.round(this.rect.h)
+		this.rect.w = Math.round(this.rect.w)
+
+		this.createPlatform()
+
+		this.rect = null
+	}
 
 	createPlayer() {
 		let player = new Player(this)
@@ -88,14 +151,17 @@ export default class GameplayScene extends Scene {
 		this.levels.push(level)
 
 		this.initPlatforms()
+
+		for (let level of this.levels) {
+			for (const platform of level.platforms)
+				platform.setMainLevel(true)
+		}
 	}
 
 	initPlatforms() {
-		this.level = this.levels[this.levelNumber]
-
-		for (const platform of this.level.platforms) {
-			platform.setMainLevel(true)
-		}
+		const level = this.levels[this.levelNumber]
+		const newLevel = new Level().fromObject(level)
+		this.level = newLevel
 	}
 
 	drawPlatforms() {
@@ -104,8 +170,8 @@ export default class GameplayScene extends Scene {
 		for (let i of this.level.platforms) {
 			i.draw()
 		}
-		if (this.game.mouse.rect)
-			this.game.mouse.rect.draw()
+		if (this.rect)
+			this.rect.draw()
 	}
 
 	drawPlayers() {
