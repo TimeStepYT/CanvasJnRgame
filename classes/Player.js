@@ -211,9 +211,10 @@ export default class Player {
             case 2: // GD Spider
                 let i = 0;
                 while (true) {
-                    const futurePlayerY = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
+                    const futurePlayer = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
+                    if (futurePlayer.y - futurePlayer.h < 0) break
                     for (const platform of this.layer.level.platforms) {
-                        if (!futurePlayerY.isColliding(platform))
+                        if (!futurePlayer.isColliding(platform))
                             continue
 
                         let futureY = 0
