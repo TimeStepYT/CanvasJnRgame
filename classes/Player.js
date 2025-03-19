@@ -212,7 +212,7 @@ export default class Player {
                 let i = 0;
                 while (true) {
                     const futurePlayer = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
-                    if (futurePlayer.y - futurePlayer.h < 0) break
+                    if (!futurePlayer.isColliding(this.game.windowSize.getRect())) break
                     for (const platform of this.layer.level.platforms) {
                         if (!futurePlayer.isColliding(platform))
                             continue
