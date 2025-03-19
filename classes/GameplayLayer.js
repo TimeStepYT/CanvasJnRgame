@@ -1,5 +1,6 @@
 import Layer from "./Layer.js"
 import Level from "./Level.js"
+import Text from "./Text.js"
 import Platform from "./Platform.js"
 import FinishTrigger from "./FinishTrigger.js"
 import Trigger from "./Trigger.js"
@@ -167,7 +168,8 @@ export default class GameplayLayer extends Layer {
 				if (player.gameMode == 0)
 					this.switchLevel(this.levelNumber + 1)
 				else {
-					alert("CHEATER!!!")
+					this.level.platforms.pop()
+					this.level.platforms.push(new Text().create("CHEATER!!!", new Point(200, 300), 50).setAlignY("top"))
 				}
 			}),
 		],
