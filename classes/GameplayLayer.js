@@ -2,6 +2,7 @@ import Layer from "./Layer.js"
 import Level from "./Level.js"
 import Platform from "./Platform.js"
 import FinishTrigger from "./FinishTrigger.js"
+import Trigger from "./Trigger.js"
 import Rect from "./Rect.js"
 import Point from "./Point.js"
 import Player from "./Player.js"
@@ -58,9 +59,9 @@ export default class GameplayLayer extends Layer {
 	onmousemove(e) {
 		let mouse = this.game.mouse
 		if (mouse.clicking && this.rect != null) {
-            this.rect.w = mouse.pos.x - this.rect.x
-            this.rect.h = mouse.pos.y - this.rect.y
-        }
+			this.rect.w = mouse.pos.x - this.rect.x
+			this.rect.h = mouse.pos.y - this.rect.y
+		}
 	}
 
 	onmouseup(e) {
@@ -141,6 +142,37 @@ export default class GameplayLayer extends Layer {
 			new Point(42, 599)
 		)
 		this.levels.push(level)
+
+		level = new Level().create([
+			new Platform().create(98, 706, 99, 66),
+			new Platform().create(570, 542, 50, 32),
+			new Platform().create(1104, 453, 59, 40),
+			new Platform().create(582, 569, 26, 177),
+			new Platform().create(1121, 489, 25, 276),
+			new Platform().create(1247, 323, 6, 5),
+			new Platform().create(945, 263, 7, 5),
+			new Platform().create(512, 222, 8, 5),
+			new Platform().create(45, 201, 7, 9),
+			new Platform().create(34, 188, 10, 10),
+			new Platform().create(22, 175, 11, 9),
+			new Platform().create(53, 189, 11, 11),
+			new Platform().create(63, 178, 10, 10),
+			new Platform().create(45, 103, 8, 102),
+			new Platform().create(16, 30, 10, 11),
+			new Platform().create(50, 29, 13, 14),
+			new Platform().create(25, 65, 10, 10),
+			new Platform().create(35, 65, 10, 11),
+			new Platform().create(46, 55, 9, 11),
+			new Trigger().create(42, 316, 11, 6, (player) => {
+				if (player.gameMode == 0)
+					player.scene.switchLevel(player.scene.levelNumber + 1)
+				else alert("CHEATER!!!")
+			}),
+		],
+			new Point(124, 606)
+		)
+		this.levels.push(level)
+
 		level = new Level().create([
 			new Platform().create(0, 699, 1315, 25),
 			new Platform().create(-9, -7, 1291, 16),

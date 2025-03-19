@@ -3,22 +3,22 @@ import Rect from "./Rect.js"
 import Trigger from "./Trigger.js"
 
 export default class Player {
-    constructor(scene) {
-        this.game = scene.game
-        this.scene = scene
-        this.setPosition(scene.level.origin)
+    constructor(layer) {
+        this.game = layer.game
+        this.layer = layer
+        this.setPosition(layer.level.origin)
 
         // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
-        if (scene.game.keyboard.keysDown == null) return
+        if (layer.game.keyboard.keysDown == null) return
 
-        for (let [key, active] of Object.entries(scene.game.keyboard.keysDown)) {
+        for (let [key, active] of Object.entries(layer.game.keyboard.keysDown)) {
             if (active)
                 this.onkeydown(key)
         }
     }
 
     game = null
-    scene = null
+    layer = null
 
     x = null
     y = null
@@ -124,7 +124,7 @@ export default class Player {
 
         if (platform instanceof Trigger) {
             if (platform.func == null) return
-            platform.func(this.scene)
+            platform.func(this)
             return true
         }
 
@@ -189,7 +189,7 @@ export default class Player {
         this.h = this.standHeight
         this.ducking = false
 
-        for (const platform of this.scene.level.platforms) {
+        for (const platform of this.layer.level.platforms) {
             if (platform.isColliding(this)) {
                 this.duck()
                 return
@@ -212,7 +212,7 @@ export default class Player {
                 let i = 0;
                 while (true) {
                     const futurePlayerY = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
-                    for (const platform of this.game.level.platforms) {
+                    for (const platform of this.layer.level.platforms) {
                         if (!futurePlayerY.isColliding(platform))
                             continue
 
@@ -336,7 +336,7 @@ export default class Player {
         let wasStanding = this.floorPlatform != null
         this.floorPlatform = null
 
-        for (let platform of this.scene.level.platforms) {
+        for (let platform of this.layer.level.platforms) {
             const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
             for (let i = 0; i < steps; i++) {
                 if (this.handleCollision(platform, this.game.dt.get() * (i / steps))) {
