@@ -166,7 +166,9 @@ export default class GameplayLayer extends Layer {
 			new Trigger().create(42, 316, 11, 6, (player) => {
 				if (player.gameMode == 0)
 					this.switchLevel(this.levelNumber + 1)
-				else alert("CHEATER!!!")
+				else {
+					alert("CHEATER!!!")
+				}
 			}),
 		],
 			new Point(124, 606)

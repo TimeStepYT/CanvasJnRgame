@@ -261,7 +261,10 @@ export default class Player {
     }
 
     handleJumpHeight() {
-        if (this.gameMode != 0 || !this.changeGravity) return
+        if (this.gameMode != 0 || !this.changeGravity) {
+            this.gravity = this.gravity > 0 ? this.normalGravity : -this.normalGravity
+            return
+        }
 
         if (this.gravity > 0) {
             if (this.jumpHeld && this.yv < 0)
