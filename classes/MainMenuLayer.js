@@ -1,23 +1,40 @@
+import Rect from "./Rect.js"
+import Point from "./Point.js"
 import Layer from "./Layer.js"
 import Button from "./Button.js"
 import GameplayLayer from "./GameplayLayer.js"
-import { ctx } from "../script.js"
+import Size from "./Size.js"
+import Text from "./Text.js"
 
 export default class MainMenuLayer extends Layer {
 	initButtons() {
-		const playButtonSize = 200
+		const playButtonSize = new Size(200, 200)
 		const windowSize = this.game.windowSize
 
 		const playButton = new Button(this.game).create(
-			(windowSize.w - playButtonSize) / 2,
-			(windowSize.h - playButtonSize) / 2,
-			playButtonSize,
-			playButtonSize)
-			.setColor("white")
+			(windowSize.w - playButtonSize.w) / 2,
+			(windowSize.h - playButtonSize.h) / 2,
+			playButtonSize.w, playButtonSize.h)
 			.setFunction(() => {
 				this.onPlay()
 			})
 
+
+		const playText = new Text()
+			.create("Play", new Point(playButton.w / 2, playButton.h / 2), 50)
+			.setAlignX("center")
+			.setAlignY("middle")
+		const playTextShadow = new Text()
+			.create("Play", new Point(playButton.w / 2 + 1, playButton.h / 2 + 1), 50)
+			.setAlignX("center")
+			.setAlignY("middle")
+			.setColor("white")
+
+		playButton.content.push(new Rect().create(0, 0, playButton.w, playButton.h / 4).setColor("#ff00ff"))
+		playButton.content.push(new Rect().create(0, 0 + playButton.h / 4 * 3, playButton.w, playButton.h / 4).setColor("#ff00ff"))
+
+		playButton.content.push(playTextShadow)
+		playButton.content.push(playText)
 		this.buttons.push(playButton)
 	}
 
@@ -27,15 +44,15 @@ export default class MainMenuLayer extends Layer {
 
 	draw() {
 		const windowSize = this.game.windowSize
-		const bg = windowSize.setColor("#770077").draw()
 
-		ctx.font = "50px Comic Sans MS"
-		ctx.textAlign = "center"
-		ctx.textBaseline = "middle"
-		ctx.fillStyle = "white"
-		ctx.fillText("Cool Platformer", windowSize.w / 2, windowSize.h / 2 - 150)
-		this.drawButtons()
-		ctx.fillStyle = "black"
-		ctx.fillText("Play", windowSize.w / 2, windowSize.h / 2)
+		new Rect().create(0, 0, windowSize.w, windowSize.h).setColor("#770077").draw()
+
+		const title = new Text()
+			.create("Cool Platformer", new Point(windowSize.w / 2, windowSize.h / 2 - 150), 50)
+			.setAlignX("center")
+			.setAlignY("middle")
+			.setColor("white")
+
+		title.draw()
 	}
 }

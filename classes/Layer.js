@@ -11,20 +11,11 @@ export default class Layer {
 
 	// Empty classes are supposed to get inherited, so they shouldn't do anything yet
 	onmousemove(e) { }
-	onmousedown(e) {
-		for (const button of this.buttons) {
-			if (button.isColliding(this.game.mouse.pos.getRect()))
-				button.onClick()
-		}
-	}
+	onmousedown(e) { }
 	onmouseup(e) { }
 	onkeyup(e) { }
 	onkeydown(e) { }
 	initButtons() { }
 
 	draw() { }
-	drawButtons() {
-		for (const button of this.buttons)
-			button.draw()
-	}
 }

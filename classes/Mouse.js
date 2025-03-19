@@ -21,7 +21,8 @@ export default class Mouse {
         const xPos = e.clientX - rect.left - 2
         const yPos = e.clientY - rect.top - 2
 
-        this.pos = new Point().create(xPos, yPos)
+
+        this.pos = new Point(xPos, yPos)
 
         this.game.forLayers(layer => {
             layer.onmousemove(e)
@@ -34,6 +35,11 @@ export default class Mouse {
                 break
         }
         this.game.forLayers(layer => {
+            for (const button of layer.buttons) {
+                if (button.isColliding(this.pos.getRect())) {
+                    button.onClick()
+                }
+            }
             layer.onmousedown(e)
         })
     }

@@ -1,3 +1,4 @@
+import Point from "./Point.js"
 import {ctx} from "../script.js"
 
 export default class Rect {
@@ -7,10 +8,13 @@ export default class Rect {
     h = null
     color = "black"
 
+    offsetPos = new Point(0, 0)
+
     hasNaN() {
         if (isNaN(this.x) || isNaN(this.y) || isNaN(this.w) || isNaN(this.h)) {
             console.log(this)
             console.error("NaN detected")
+            delete window.game
             return true
         }
         return false
@@ -54,13 +58,13 @@ export default class Rect {
 
     draw() {
         ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.w, this.h)
+        ctx.fillRect(this.x + this.offsetPos.x, this.y + this.offsetPos.y, this.w, this.h)
         return this
     }
 
     drawOutline() {
         ctx.strokeStyle = this.color
-        ctx.strokeRect(this.x, this.y, this.w, this.h)
+        ctx.strokeRect(this.x + this.offsetPos.x, this.y + this.offsetPos.y, this.w, this.h)
         return this
     }
 

@@ -119,7 +119,7 @@ export default class GameplayLayer extends Layer {
 			new Platform().create(1416, 313, 20, 20),
 			new FinishTrigger().create(1108, 65, 98, 50)
 		],
-			new Point().create(102, 599)
+			new Point(102, 599)
 		)
 		this.levels.push(level)
 		level = new Level().create([
@@ -138,7 +138,7 @@ export default class GameplayLayer extends Layer {
 			new Platform().create(758, 292, 562, 23),
 			new FinishTrigger().create(1201, 59, 32, 233)
 		],
-			new Point().create(42, 599)
+			new Point(42, 599)
 		)
 		this.levels.push(level)
 		level = new Level().create([
@@ -146,7 +146,7 @@ export default class GameplayLayer extends Layer {
 			new Platform().create(-9, -7, 1291, 16),
 			new FinishTrigger().create(604, 430, 99, 98)
 		],
-			new Point().create(42, 599)
+			new Point(42, 599)
 		)
 		this.levels.push(level)
 

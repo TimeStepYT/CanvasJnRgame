@@ -1,4 +1,4 @@
-import Rect from "./Rect.js"
+import Size from "./Size.js"
 import MainMenuLayer from "./MainMenuLayer.js"
 import Mouse from "./Mouse.js"
 import Keyboard from "./Keyboard.js"
@@ -20,7 +20,7 @@ export default class Game {
     layers = []
     
     rect = null
-    windowSize = new Rect().create(0, 0, canvas.width, canvas.height)
+    windowSize = new Size(canvas.width, canvas.height)
     showHitboxes = false
     
     dt = new DeltaTime(this)
@@ -50,6 +50,9 @@ export default class Game {
     drawLayers() {
         this.forLayers(layer => {
             layer.draw()
+            for (const button of layer.buttons) {
+                button.draw()
+            }
         })
     }
 
