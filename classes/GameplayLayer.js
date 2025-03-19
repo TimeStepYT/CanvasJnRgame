@@ -165,7 +165,7 @@ export default class GameplayLayer extends Layer {
 			new Platform().create(46, 55, 9, 11),
 			new Trigger().create(42, 316, 11, 6, (player) => {
 				if (player.gameMode == 0)
-					player.scene.switchLevel(player.scene.levelNumber + 1)
+					this.switchLevel(this.levelNumber + 1)
 				else alert("CHEATER!!!")
 			}),
 		],
