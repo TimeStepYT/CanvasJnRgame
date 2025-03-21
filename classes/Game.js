@@ -9,20 +9,29 @@ export default class Game {
     constructor() {
         onkeydown = e => this.onkeydown(e)
         onkeyup = e => this.onkeyup(e)
-        onmousemove = e => this.onmousemove(e)
-        onmousedown = e => this.onmousedown(e)
-        onmouseup = e => this.onmouseup(e)
+
+        if (typeof ontouchstart != "undefined") {
+            ontouchstart = e => this.onmousedown(e)
+            ontouchend = e => this.onmouseup(e)
+            ontouchmove = e => this.onmousemove(e)
+            ontouchcancel = e => this.onmouseup(e)
+        }
+        else {
+            onmousemove = e => this.onmousemove(e)
+            onmousedown = e => this.onmousedown(e)
+            onmouseup = e => this.onmouseup(e)
+        }
 
         this.layers.push(new MainMenuLayer(this))
         requestAnimationFrame(() => this.animate())
     }
 
     layers = []
-    
+
     rect = null
     windowSize = new Size(canvas.width, canvas.height)
     showHitboxes = false
-    
+
     dt = new DeltaTime(this)
     mouse = new Mouse(this)
     keyboard = new Keyboard(this)

@@ -39,6 +39,7 @@ export default class MainMenuLayer extends Layer {
 	}
 
 	onPlay() {
+		this.willExit = true
 		this.game.layers = [new GameplayLayer(this.game)]
 	}
 

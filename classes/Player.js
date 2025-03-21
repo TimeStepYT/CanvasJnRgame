@@ -358,7 +358,7 @@ export default class Player {
             this.floorPlatform.setColor("black")
         }
 
-        if (this.y > canvas.height) 
+        if (!this.game.windowSize.getRect().isCollidingY(this)) 
             this.dead = true
 
         let color = "black"

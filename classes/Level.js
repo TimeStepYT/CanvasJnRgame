@@ -2,6 +2,8 @@ export default class Level {
     platforms = []
     origin = null
 
+    willExit = false
+
     create(platforms, origin) {
         this.platforms = platforms
         this.origin = origin

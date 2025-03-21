@@ -1,5 +1,6 @@
 import Rect from "./Rect.js"
 import Point from "./Point.js"
+import { canvas } from "../script.js"
 
 export default class Button extends Rect {
     constructor(game) {
@@ -11,6 +12,10 @@ export default class Button extends Rect {
 
     func = null
     game = null
+
+    mouseOver() {
+        canvas.style = "cursor: pointer;"
+    }
 
     onClick() {
         if (this.func == null) return

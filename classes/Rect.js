@@ -14,7 +14,6 @@ export default class Rect {
         if (isNaN(this.x) || isNaN(this.y) || isNaN(this.w) || isNaN(this.h)) {
             console.log(this)
             console.error("NaN detected")
-            delete window.game
             return true
         }
         return false
@@ -53,6 +52,20 @@ export default class Rect {
             this.y < rect.y + rect.h &&
             this.x < rect.x + rect.w &&
             this.x + this.w > rect.x
+        );
+    }
+    isCollidingY(rect) {
+        if (rect == null) {
+            console.error("The rect to be checked with is not declared")
+            return false
+        }
+        if (this.y == null && this.h == null) {
+            console.error("This rect is not defined")
+            return false
+        }
+        return (
+            this.y + this.h > rect.y &&
+            this.y < rect.y + rect.h
         );
     }
 

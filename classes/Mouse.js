@@ -1,7 +1,4 @@
-import Rect from "./Rect.js"
 import Point from "./Point.js"
-import Platform from "./Platform.js"
-import GameplayLayer from "./GameplayLayer.js"
 import { canvas } from "../script.js"
 
 export default class Mouse {
@@ -12,43 +9,67 @@ export default class Mouse {
     game = null
 
     clicking = false
-
     pos = null
+
+    checkForButtons(layer) {
+        if (layer.buttons.length == 0)
+            canvas.style = "cursor: normal;"
+        else for (const button of layer.buttons) {
+            if (button.isColliding(this.pos.getRect())) {
+                button.mouseOver()
+                break
+            }
+            else
+                canvas.style = "cursor: normal;"
+        }
+    }
 
     onmousemove(e) {
         this.game.rect = canvas.getBoundingClientRect()
         let rect = this.game.rect
-        const xPos = e.clientX - rect.left - 2
-        const yPos = e.clientY - rect.top - 2
 
+        // Mobile touches :)
+        if (e.touches != null) {
+            e.clientX = e.touches[0].clientX
+            e.clientY = e.touches[0].clientY
+        }
+
+        const xPos = (e.clientX - rect.left) * (canvas.width / (rect.width - 6)) - 2
+        const yPos = (e.clientY - rect.top) * (canvas.height / (rect.height - 6)) - 2
 
         this.pos = new Point(xPos, yPos)
 
         this.game.forLayers(layer => {
             layer.onmousemove(e)
+            this.checkForButtons(layer)
         })
     }
+
     onmousedown(e) {
-        switch (e.button) {
-            case 0:
-                this.clicking = true
-                break
-        }
+        if (this.pos == null || e.touches != null)
+            this.onmousemove(e)
+
+        if (e.button == 0 || e.touches != null) this.clicking = true
+
         this.game.forLayers(layer => {
             for (const button of layer.buttons) {
                 if (button.isColliding(this.pos.getRect())) {
                     button.onClick()
+                    break
                 }
             }
             layer.onmousedown(e)
+
+            if (layer.willExit)
+                canvas.style = ""
         })
+
     }
+
     onmouseup(e) {
-        switch (e.button) {
-            case 0:
-                this.clicking = false
-                break
-        }
+        if (e.button == 0 || e.touches != null)
+            this.clicking = false
+
         this.game.forLayers(layer => {
             layer.onmouseup(e)
         })
