@@ -28,23 +28,22 @@ export default class GameplayLayer extends Layer {
 	rect = null
 
 	createPlatform() {
-		const gameWindow = new Rect().create(0, 0, canvas.width, canvas.height)
-
 		if (this.rect.w == 5 && this.rect.h == 5) return
-		if (!this.rect.isColliding(gameWindow)) return
+		if (!this.rect.isColliding(this.game.windowSize.getRect())) return
 
 		let canCreateRect = true
 		let platform = new Platform().fromObject(this.rect)
 
 		if (this.game.editMode) platform.setMainLevel(true)
 
-		if (this.game.players != null)
-			for (const player of this.game.players) {
+		if (this.players != null) {
+			for (const player of this.players) {
 				if (platform.isColliding(player)) {
 					canCreateRect = false
 					break
 				}
 			}
+		}
 
 		if (canCreateRect) {
 			this.game.forLayers(layer => {
