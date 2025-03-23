@@ -50,6 +50,8 @@ export default class Player {
     prevPlayer = null
     floorPlatform = null
 
+    hitChecks = []
+
     setPosition(point) {
         this.x = point.x
         this.y = point.y
@@ -333,6 +335,17 @@ export default class Player {
         }
     }
 
+    checkCollision(list) {
+        for (const element of list) {
+            const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
+            for (let i = 0; i < steps; i++) {
+                if (this.handleCollision(element, this.game.dt.get() * (i / steps))) {
+                    break
+                }
+            }
+        }
+    }
+
     drawPlayer() {
         this.prevPlayer = this.getPlayerObject()
         this.doMovement(this.game.dt.get())
@@ -340,14 +353,9 @@ export default class Player {
         let wasStanding = this.floorPlatform != null
         this.floorPlatform = null
 
-        for (let platform of this.layer.level.platforms) {
-            const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
-            for (let i = 0; i < steps; i++) {
-                if (this.handleCollision(platform, this.game.dt.get() * (i / steps))) {
-                    break
-                }
-            }
-        }
+        this.checkCollision(this.layer.level.platforms)
+        this.checkCollision(this.layer.level.checks)
+    
         let wentAirborne = wasStanding && this.floorPlatform == null
 
         if (wentAirborne && this.speedFactor != 1) this.slowDown = true

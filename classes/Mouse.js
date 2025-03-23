@@ -34,10 +34,10 @@ export default class Mouse {
             e.clientY = e.touches[0].clientY
         }
 
-        const xPos = (e.clientX - rect.left) * (canvas.width / (rect.width - 6)) - 2
-        const yPos = (e.clientY - rect.top) * (canvas.height / (rect.height - 6)) - 2
+        const xPos = (e.clientX - rect.left) * (canvas.width / (rect.width - 6)) - 4
+        const yPos = (e.clientY - rect.top) * (canvas.height / (rect.height - 6)) - 4
 
-        this.pos = new Point(xPos, yPos)
+        this.pos = new Point(Math.round(xPos), Math.round(yPos))
 
         this.game.forLayers(layer => {
             layer.onmousemove(e)
