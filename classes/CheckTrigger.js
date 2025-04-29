@@ -3,15 +3,20 @@ import Trigger from "./Trigger.js"
 export default class CheckTrigger extends Trigger {
     color = "#00ff00a0"
 
-    create(x, y, w, h) {
-        super.create(x, y, w, h, (player) => {
-            if (player.hitChecks.includes(this)) return
+    static create(x, y, w, h) {
+        let res = new CheckTrigger()
 
-            player.hitChecks.push(this)
+        res.x = x
+        res.y = y
+        res.w = w
+        res.h = h
+        
+        res.func = (player) => {
+            if (player.hitChecks.includes(res)) return
 
-            console.log("check hit!")
-        })
+            player.hitChecks.push(res)
+        }
 
-        return this
+        return res
     }
 }

@@ -10,6 +10,6 @@ export default class Point {
     }
 
     getRect() {
-        return new Rect().create(this.x, this.y, 0, 0)
+        return Rect.create(this.x, this.y, 0, 0)
     }
 }

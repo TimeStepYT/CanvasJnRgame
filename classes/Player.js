@@ -1,9 +1,12 @@
 import { canvas } from "../script.js"
 import Rect from "./Rect.js"
+import Entity from "./Entity.js"
 import Trigger from "./Trigger.js"
 
-export default class Player {
+export default class Player extends Entity {
     constructor(layer) {
+        super(layer)
+
         this.game = layer.game
         this.layer = layer
         this.setPosition(layer.level.origin)
@@ -17,47 +20,26 @@ export default class Player {
         }
     }
 
-    game = null
-    layer = null
-
-    x = null
-    y = null
-    xv = 0
-    yv = 0
     w = 50
     h = 100
-    terminalVelocity = 20
     standHeight = 100
     duckHeight = 50
     accelSpeed = 0.25
     jumpHeight = 13
-    maxSpeed = 10
     gameMode = 0
     normalGravity = 0.8
     holdGravity = 0.3
     gravity = this.normalGravity
     changeGravity = false
-    speedFactor = 1
     ducking = false
     slowDown = false
-    dead = false
 
     jumpBuffered = false
     jumpHeld = false
     moveLeft = false
     moveRight = false
 
-    prevPlayer = null
-    floorPlatform = null
-
     hitChecks = []
-
-    setPosition(point) {
-        this.x = point.x
-        this.y = point.y
-
-        return this
-    }
 
     onkeydown(key) {
         switch (key) {
@@ -113,63 +95,11 @@ export default class Player {
         return this.standHeight - this.duckHeight
     }
 
-    handleCollision(platform, dt) {
-        const xOffset = this.xv * dt
-        const yOffset = this.yv * dt
+    standAction(touchingTop) {
+        if (!this.jumpBuffered) return
 
-        const futureX = this.x + xOffset
-        const futureY = this.y + yOffset
-
-        const futurePlayerRect = new Rect().create(futureX, futureY, this.w, this.h)
-
-        if (!futurePlayerRect.isColliding(platform)) return false
-
-        if (platform instanceof Trigger) {
-            if (platform.func == null) return
-            platform.func(this)
-            return true
-        }
-
-        const dx = ((futureX + this.w) - (platform.x + platform.w)) / 2 // center of player - center of platform
-        const dy = ((futureY + this.h) - (platform.y + platform.h)) / 2 // center of player - center of platform
-
-        const futurePlayerRectY = new Rect().create(this.x, futureY, this.w, this.h)
-        const futurePlayerRectX = new Rect().create(futureX, this.y, this.w, this.h)
-
-        let res = false
-
-        if (futurePlayerRectY.isColliding(platform)) {
-            if (dy < 0 && this.prevPlayer.y + this.prevPlayer.h <= platform.y) {
-                this.y = platform.y - this.h
-                this.yv = 0
-                if (this.jumpBuffered && this.gravity > 0) this.jump()
-
-                if (this.gravity > 0)
-                    this.floorPlatform = platform
-
-                res = true
-            } else if (dy > 0 && this.prevPlayer.y >= platform.y + platform.h) {
-                this.y = platform.y + platform.h
-                this.yv = 0
-                if (this.jumpBuffered && this.gravity < 0) this.jump()
-
-                if (this.gravity < 0)
-                    this.floorPlatform = platform
-                res = true
-            }
-        }
-        if (futurePlayerRectX.isColliding(platform)) {
-            if (dx < 0 && this.prevPlayer.x <= platform.x - this.prevPlayer.w) {
-                this.x = platform.x - this.w
-                this.xv = 0
-                res = true
-            } else if (dx > 0 && this.prevPlayer.x >= platform.x + platform.w) {
-                this.x = platform.x + platform.w
-                this.xv = 0
-                res = true
-            }
-        }
-        return res
+        if (this.gravity > 0 && touchingTop) this.jump()
+        else if (this.gravity < 0 && !touchingTop) this.jump()
     }
 
     duck() {
@@ -213,7 +143,7 @@ export default class Player {
             case 2: // GD Spider
                 let i = 0;
                 while (true) {
-                    const futurePlayer = new Rect().create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
+                    const futurePlayer = Rect.create(this.x, this.y + i * -(this.gravity + 0.2), this.w, this.h)
                     if (!futurePlayer.isColliding(this.game.windowSize.getRect())) break
                     for (const platform of this.layer.level.platforms) {
                         if (!futurePlayer.isColliding(platform))
@@ -242,24 +172,13 @@ export default class Player {
         }
     }
 
-    handleFriction(dt) {
-        if (this.floorPlatform == null) return
-
-        if (this.floorPlatform.friction == null) {
-            console.error("The platform you are standing on has and undefined friction!")
-            return
+    collidingAction(platform) {
+        if (platform instanceof Trigger) {
+            if (platform.func == null) return true
+            platform.func(this)
+            return true
         }
-
-        if (this.xv > 0) {
-            this.xv -= this.floorPlatform.friction * dt
-            if (this.xv < 0)
-                this.xv = 0
-        }
-        else if (this.xv < 0) {
-            this.xv += this.floorPlatform.friction * dt
-            if (this.xv > 0)
-                this.xv = 0
-        }
+        return false
     }
 
     handleJumpHeight() {
@@ -326,28 +245,17 @@ export default class Player {
             this.handleFriction(dt)
 
         if (this.game.showHitboxes) {
-            new Rect().create(this.x, this.y, this.w, this.h)
+            Rect.create(this.x, this.y, this.w, this.h)
                 .setColor("red")
                 .drawOutline()
-            new Rect().create(this.x, this.y, this.w, this.h)
+            Rect.create(this.x, this.y, this.w, this.h)
                 .setColor("blue")
                 .drawOutline()
         }
     }
 
-    checkCollision(list) {
-        for (const element of list) {
-            const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
-            for (let i = 0; i < steps; i++) {
-                if (this.handleCollision(element, this.game.dt.get() * (i / steps))) {
-                    break
-                }
-            }
-        }
-    }
-
-    drawPlayer() {
-        this.prevPlayer = this.getPlayerObject()
+    draw() {
+        this.prevEnt = this.getEntityObject()
         this.doMovement(this.game.dt.get())
 
         let wasStanding = this.floorPlatform != null
@@ -355,7 +263,7 @@ export default class Player {
 
         this.checkCollision(this.layer.level.platforms)
         this.checkCollision(this.layer.level.checks)
-    
+
         let wentAirborne = wasStanding && this.floorPlatform == null
 
         if (wentAirborne && this.speedFactor != 1) this.slowDown = true
@@ -366,7 +274,7 @@ export default class Player {
             this.floorPlatform.setColor("black")
         }
 
-        if (!this.game.windowSize.getRect().isCollidingY(this)) 
+        if (!this.game.windowSize.getRect().isCollidingY(this))
             this.dead = true
 
         let color = "black"
@@ -382,20 +290,9 @@ export default class Player {
                 break
         }
 
-        const playerRect = new Rect().fromObject(this).setColor(color)
+        const playerRect = Rect.fromObject(this).setColor(color)
 
         if (this.game.showHitboxes) playerRect.drawOutline()
         else playerRect.draw()
-    }
-
-    getPlayerObject() {
-        return {
-            x: this.x,
-            y: this.y,
-            w: this.w,
-            h: this.h,
-            xv: this.xv,
-            yv: this.yv
-        }
     }
 }

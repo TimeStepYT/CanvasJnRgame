@@ -15,8 +15,8 @@ export default class Keyboard {
         this.keysDown[key] = true
 
         this.game.forLayers(layer => {
-            if (layer.players != null)
-                for (const player of layer.players)
+            if (layer.entities != null)
+                for (const player of layer.entities)
                     player.onkeydown(key)
         }, GameplayLayer)
 
@@ -42,7 +42,7 @@ export default class Keyboard {
         let key = e.key.toLowerCase()
         this.keysDown[key] = false
         this.game.forLayers(layer => {
-            layer.players.forEach(p => p.onkeyup(key))
+            layer.entities.forEach(p => p.onkeyup(key))
         }, GameplayLayer)
     }
 }

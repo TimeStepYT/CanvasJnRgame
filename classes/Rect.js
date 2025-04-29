@@ -10,6 +10,10 @@ export default class Rect {
 
     offsetPos = new Point(0, 0)
 
+    constructor() {
+
+    }
+
     hasNaN() {
         if (isNaN(this.x) || isNaN(this.y) || isNaN(this.w) || isNaN(this.h)) {
             console.log(this)
@@ -18,24 +22,26 @@ export default class Rect {
         }
         return false
     }
-    create(x, y, w, h) {
-        this.x = x
-        this.y = y
-        this.w = w
-        this.h = h
+    static create(x, y, w, h) {
+        let res = new Rect()
+        res.x = x
+        res.y = y
+        res.w = w
+        res.h = h
 
-        this.hasNaN()
-        return this
+        res.hasNaN()
+        return res
     }
 
-    fromObject(obj) {
-        this.x = obj.x
-        this.y = obj.y
-        this.w = obj.w
-        this.h = obj.h
+    static fromObject(obj) {
+        let res = new Rect()
+        res.x = obj.x
+        res.y = obj.y
+        res.w = obj.w
+        res.h = obj.h
 
-        this.hasNaN()
-        return this
+        res.hasNaN()
+        return res
     }
 
     isColliding(rect) {
@@ -83,6 +89,13 @@ export default class Rect {
 
     setColor(color) {
         this.color = color
+        return this
+    }
+
+    setPosition(point) {
+        this.x = point.x
+        this.y = point.y
+
         return this
     }
 }

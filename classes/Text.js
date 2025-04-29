@@ -13,11 +13,12 @@ export default class Text {
 
 	offsetPos = new Point(0, 0)
 
-	create(string, point, size = 10) {
-		this.string = string
-		this.pos = point
-		this.size = size
-		return this
+	static create(string, point, size = 10) {
+		let res = new Text()
+		res.string = string
+		res.pos = point
+		res.size = size
+		return res
 	}
 
 	setSize(size) {

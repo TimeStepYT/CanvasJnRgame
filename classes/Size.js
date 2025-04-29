@@ -7,7 +7,7 @@ export default class Size {
 	}
 
 	getRect() {
-		return new Rect().create(0, 0, this.w, this.h)
+		return Rect.create(0, 0, this.w, this.h)
 	}
 
 	w = null

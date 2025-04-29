@@ -5,20 +5,22 @@ export default class Level {
 
     willExit = false
 
-    create(platforms, origin, checks = []) {
-        this.platforms = platforms
-        this.origin = origin
-        this.checks = checks
+    static create(platforms, origin, checks = []) {
+        let res = new Level()
+        res.platforms = platforms
+        res.origin = origin
+        res.checks = checks
 
-        return this
+        return res
     }
 
-    fromObject(obj) {
-        this.platforms = [...obj.platforms]
-        this.origin = obj.origin
-        this.checks = [...obj.checks]
+    static fromObject(obj) {
+        let res = new Level()
+        res.platforms = [...obj.platforms]
+        res.origin = obj.origin
+        res.checks = [...obj.checks]
 
-        return this
+        return res
     }
 
     getCopyable() {

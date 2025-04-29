@@ -6,14 +6,15 @@ export default class Trigger extends Rect {
     color = "yellow"
     func = null
 
-    create(x, y, w, h, func) {
-        this.x = x
-        this.y = y
-        this.w = w
-        this.h = h
-        this.func = func
+    static create(x, y, w, h, func) {
+        let res = new Trigger()
+        res.x = x
+        res.y = y
+        res.w = w
+        res.h = h
+        res.func = func
 
-        return this
+        return res
     }
 
     setMainLevel(isMainLevel) {

@@ -13,6 +13,16 @@ export default class Button extends Rect {
     func = null
     game = null
 
+    static create(game, x, y, w, h) {
+        let res = new Button(game)
+        res.x = x
+        res.y = y
+        res.w = w
+        res.h = h
+
+        return res
+    }
+
     mouseOver() {
         canvas.style = "cursor: pointer;"
     }
