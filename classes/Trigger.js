@@ -5,6 +5,7 @@ export default class Trigger extends Rect {
     isMainLevel = false
     color = "yellow"
     func = null
+    solid = false
 
     static create(x, y, w, h, func) {
         let res = new Trigger()

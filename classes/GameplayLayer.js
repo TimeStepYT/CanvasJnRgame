@@ -33,7 +33,7 @@ export default class GameplayLayer extends Layer {
 		if (!this.rect.isColliding(this.game.windowSize.getRect())) return
 
 		let canCreateRect = true
-		let platform = new Platform().fromObject(this.rect)
+		let platform = Platform.fromObject(this.rect)
 
 		if (this.game.editMode) platform.setMainLevel(true)
 

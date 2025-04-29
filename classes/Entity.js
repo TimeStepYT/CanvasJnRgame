@@ -39,7 +39,7 @@ export default class Entity extends Rect {
 
 		if (!futureEntityRect.isColliding(platform)) return false
 
-		if (this.collidingAction(platform)) return false
+		if (this.collidingAction(platform) || !platform.solid) return false
 
 		const dx = ((futureX + this.w) - (platform.x + platform.w)) / 2 // center of player - center of platform
 		const dy = ((futureY + this.h) - (platform.y + platform.h)) / 2 // center of player - center of platform

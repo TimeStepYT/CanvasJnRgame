@@ -3,6 +3,7 @@ import Rect from "./Rect.js"
 export default class Platform extends Rect {
     friction = 0.5
     isMainLevel = false
+    solid = true
     
     static create(x, y, w, h) {
         let res = new Platform()
