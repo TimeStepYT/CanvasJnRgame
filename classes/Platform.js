@@ -4,7 +4,7 @@ export default class Platform extends Rect {
     friction = 0.5
     isMainLevel = false
     solid = true
-    
+
     static create(x, y, w, h) {
         let res = new Platform()
 
@@ -13,6 +13,17 @@ export default class Platform extends Rect {
         res.w = w
         res.h = h
 
+        return res
+    }
+
+    static fromObject(obj) {
+        let res = new Platform()
+        res.x = obj.x
+        res.y = obj.y
+        res.w = obj.w
+        res.h = obj.h
+
+        res.hasNaN()
         return res
     }
 
