@@ -92,17 +92,20 @@ export default class Entity extends Rect {
 		
 		const absXV = Math.abs(this.xv)
 		const absYV = Math.abs(this.yv)
-
+		
 		if (absXV > absYV)
 			steps = (absXV * dt) / this.w
 		else
 			steps = (absYV * dt) / this.h
-		
-		// const steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
+	
+		if (steps < 4)
+			steps = 4
+
+		// steps = 4 // Mario 64 style splitting up the positions every frame for more accuracy
 		
 		for (const element of list) {
 			for (let i = 0; i < steps; i++) {
-				if (this.handleCollision(element, dt * (i / steps)))
+				if (this.handleCollision(element, dt * ((i + 1) / steps)))
 					break
 			}
 		}

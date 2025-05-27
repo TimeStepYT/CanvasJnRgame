@@ -76,6 +76,8 @@ export default class Game {
     animate() {
         this.dt.updateDeltaTime()
         this.drawLayers()
-        requestAnimationFrame(() => this.animate())
+        // setTimeout(() => {
+            requestAnimationFrame(() => this.animate())
+        // }, 100/60 )
     }
 }
