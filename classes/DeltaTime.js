@@ -16,8 +16,7 @@ export default class DeltaTime {
     updateDeltaTime() {
         this.now = performance.now()
         this.dt = ((this.now - this.lastUpdated) / 10) * 0.6
-        if (this.dt > 2) this.dt = 2 // Don't explode when tabbing out
-        console.log(this.dt);
+        if (this.dt > 1) this.dt = 1 // Don't explode when tabbing out
         this.lastUpdated = this.now
     }
 }

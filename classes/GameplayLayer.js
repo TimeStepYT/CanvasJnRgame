@@ -213,14 +213,21 @@ export default class GameplayLayer extends Layer {
 	}
 
 	drawEntities() {
+		let deleteQueue = []
 		for (let i = 0; i < this.entities.length; i++) {
 			let entity = this.entities[i]
 			entity.draw()
-			if (entity.dead) {
-				this.entities.splice(i, 1)
-				i--
+			if (entity.isDead()) {
+				deleteQueue.push(this)
 			}
 		}
+		for (let toBeDeleted of deleteQueue) {
+			this.entities.splice(this.entities.indexOf(toBeDeleted), 1)
+		}
+
+		let players = this.entities.filter(i => i instanceof Player)
+		if (players.length == 0)
+			this.createPlayer()
 	}
 
 	drawBackground(color) {

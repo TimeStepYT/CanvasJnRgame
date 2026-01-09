@@ -2,6 +2,7 @@ import { canvas } from "../script.js"
 import Rect from "./Rect.js"
 import Entity from "./Entity.js"
 import Trigger from "./Trigger.js"
+import ImageHandler from "./ImageHandler.js"
 
 export default class Player extends Entity {
     constructor(layer) {
@@ -40,6 +41,8 @@ export default class Player extends Entity {
     moveRight = false
 
     hitChecks = []
+
+    imageHandler = ImageHandler.createWithString("/assets/player.png")
 
     onkeydown(key) {
         switch (key) {
@@ -275,7 +278,7 @@ export default class Player extends Entity {
         }
 
         if (!this.game.windowSize.getRect().isCollidingY(this))
-            this.dead = true
+            this.die()
 
         let color = "black"
         switch (this.gameMode) {
@@ -290,9 +293,12 @@ export default class Player extends Entity {
                 break
         }
 
+        
         const playerRect = Rect.fromObject(this).setColor(color)
-
+        
         if (this.game.showHitboxes) playerRect.drawOutline()
-        else playerRect.draw()
+            // else playerRect.draw()
+
+        this.imageHandler.draw(this.x, this.y, this.w, this.h)
     }
 }

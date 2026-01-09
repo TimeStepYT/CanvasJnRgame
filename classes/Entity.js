@@ -1,5 +1,6 @@
 import Rect from "./Rect.js"
 import Trigger from "./Trigger.js"
+import ImageHandler from "./ImageHandler.js"
 
 export default class Entity extends Rect {
 	constructor(layer) {
@@ -23,6 +24,15 @@ export default class Entity extends Rect {
 	maxSpeed = 10
 	floorPlatform = null
 	prevEnt = null
+	imageHandler = null
+
+	isDead() {
+		return this.dead
+	}
+
+	die() {
+		this.dead = true
+	}
 
 	standAction(touchingTop) { }
 

@@ -1,7 +1,7 @@
 import Rect from "./Rect.js"
 
 export default class Platform extends Rect {
-    friction = 0.5
+    friction = 0.75
     isMainLevel = false
     solid = true
 
