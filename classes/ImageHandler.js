@@ -3,37 +3,45 @@ import Rect from "./Rect.js"
 
 export default class ImageHandler extends Rect {
     image = null
-    loaded = false
     flippedX = false
     flippedY = false
+    
+    static imageMap = {}
     
     constructor() {
         super()
     }
     
-    onLoad() {}
-
     get() {
         return this.image
     }
 
-    static createWithImage(img) {
-        const handler = new ImageHandler()
-        handler.setImage(img)
-        return handler
-    }
-
-    static createWithString(img) {
+    static registerImage(name, path) {
         let newImage = new Image()
-        newImage.src = img
+        newImage.src = path
+
+        ImageHandler.imageMap[name] = {
+            "image": newImage,
+            "loaded": false
+        }
+        
+        newImage.onload = () => {
+            ImageHandler.imageMap[name].loaded = true;
+        }
+    }
+
+    static create(spriteName) {
         const handler = new ImageHandler()
-        handler.setImage(newImage)
+        handler.setImage(spriteName)
         return handler
     }
 
-    setImage(img) {
-        this.loaded = false
-        this.image = img
+    setImage(spriteName) {
+        this.image = ImageHandler.imageMap[spriteName].image
+
+        if (this.image === undefined)
+            console.error("Sprite \"" + spriteName + "\" is not loaded!");
+
         this.init()
     }
 
@@ -46,21 +54,11 @@ export default class ImageHandler extends Rect {
     }
 
     init() {
-        this.image.onload = () => {
-            this.loaded = true
-            this.w = this.image.width
-            this.h = this.image.height
-            this.onLoad()
-        }
-    }
-
-    isLoaded() {
-        return this.loaded
+        this.w = this.image.width
+        this.h = this.image.height
     }
 
     draw(x = 0, y = 0, w = this.w, h = this.h) {
-        if (!this.isLoaded())
-            return
         ctx.drawImage(this.get(), x, y, w, h)
     }
 }

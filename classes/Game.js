@@ -4,6 +4,7 @@ import Mouse from "./Mouse.js"
 import Keyboard from "./Keyboard.js"
 import DeltaTime from "./DeltaTime.js"
 import { canvas } from "../script.js"
+import ImageHandler from "./ImageHandler.js"
 
 export default class Game {
     constructor() {
@@ -22,8 +23,7 @@ export default class Game {
             onmouseup = e => this.onmouseup(e)
         }
 
-        this.layers.push(new MainMenuLayer(this))
-        requestAnimationFrame(() => this.animate())
+        this.registerAssets()
     }
 
     layers = []
@@ -54,6 +54,28 @@ export default class Game {
 
     onkeyup(e) {
         this.keyboard.onkeyup(e)
+    }
+
+    registerAssets() {
+        ImageHandler.registerImage("player_idle", "../assets/player.png")
+
+        let interval = setInterval(() => {
+            let done = true
+            for (const [key, value] of Object.entries(ImageHandler.imageMap)) {
+                if (!value.loaded)
+                    done = false
+            }
+
+            if (done) {
+                this.imagesLoaded()
+                clearInterval(interval)
+            }
+        }, 500)
+    }
+
+    imagesLoaded() {
+        this.layers.push(new MainMenuLayer(this))
+        requestAnimationFrame(() => this.animate())
     }
 
     drawLayers() {

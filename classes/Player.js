@@ -12,7 +12,7 @@ export default class Player extends Entity {
         this.layer = layer
         this.setPosition(layer.level.origin)
 
-        // Alle Aktionen aktivieren, deren Tasten gerade gehalten werden
+        // Activate all actions of which the keys are held
         if (layer.game.keyboard.keysDown == null) return
 
         for (let [key, active] of Object.entries(layer.game.keyboard.keysDown)) {
@@ -42,7 +42,7 @@ export default class Player extends Entity {
 
     hitChecks = []
 
-    imageHandler = ImageHandler.createWithString("/assets/player.png")
+    imageHandler = ImageHandler.create("player_idle")
 
     onkeydown(key) {
         switch (key) {
@@ -296,8 +296,10 @@ export default class Player extends Entity {
         
         const playerRect = Rect.fromObject(this).setColor(color)
         
-        if (this.game.showHitboxes) playerRect.drawOutline()
-            // else playerRect.draw()
+        if (this.game.showHitboxes)
+            playerRect.drawOutline()
+        else
+            playerRect.draw()
 
         this.imageHandler.draw(this.x, this.y, this.w, this.h)
     }
