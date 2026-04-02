@@ -57,7 +57,7 @@ export default class Game {
     }
 
     registerAssets() {
-        ImageHandler.registerImage("player_idle", "../assets/player.png")
+        ImageHandler.registerImage("player_idle", "assets/player.png")
 
         let interval = setInterval(() => {
             let done = true
