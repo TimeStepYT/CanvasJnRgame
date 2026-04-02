@@ -5,8 +5,11 @@ import Button from "./Button.js"
 import GameplayLayer from "./GameplayLayer.js"
 import Size from "./Size.js"
 import Text from "./Text.js"
+import ConvexShape from "./ConvexShape.js"
 
 export default class MainMenuLayer extends Layer {
+	testShape = null
+
 	initButtons() {
 		const playButtonSize = new Size(200, 200)
 		const windowSize = this.game.windowSize
@@ -43,6 +46,16 @@ export default class MainMenuLayer extends Layer {
 		this.game.layers = [new GameplayLayer(this.game)]
 	}
 
+	onmousedown(e) {
+		const pos = this.game.mouse.pos
+
+		if (this.testShape === null)
+			this.testShape = ConvexShape.create([pos])
+		else {
+			this.testShape.addPoints([pos])
+		}
+	}
+
 	draw() {
 		const windowSize = this.game.windowSize
 
@@ -53,6 +66,26 @@ export default class MainMenuLayer extends Layer {
 			.setAlignX("center")
 			.setAlignY("middle")
 			.setColor("white")
+
+		ConvexShape.create([
+			new Point(0, 0),
+			new Point(290, 525),
+			new Point(909, 523),
+			new Point(1328, -62),
+			new Point(1576, 971),
+			new Point(-222, 911),
+		]).setColor("#960096").draw()
+
+		ConvexShape.create([
+			new Point(0, 0),
+			new Point(300, 129),
+			new Point(921, 127),
+			new Point(1278, 0)
+		]).setColor("#be00be").draw()
+
+		if (this.testShape !== null) {
+			this.testShape.setColor("#f100f1").draw()
+		}
 
 		title.draw()
 	}

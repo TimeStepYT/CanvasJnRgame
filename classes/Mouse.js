@@ -49,8 +49,9 @@ export default class Mouse {
         if (this.pos == null || e.touches != null)
             this.onmousemove(e)
 
-        if (e.button == 0 || e.touches != null) this.clicking = true
-
+        if (e.button == 0 || e.touches != null)
+            this.clicking = true
+        
         this.game.forLayers(layer => {
             for (const button of layer.buttons) {
                 if (button.isColliding(this.pos.getRect())) {
