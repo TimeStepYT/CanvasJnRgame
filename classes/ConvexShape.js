@@ -1,8 +1,9 @@
 import Point from "./Point.js"
-import Rect from "./Rect.js"
+import Triangle from "./Triangle.js"
+import Utils from "./Utils.js"
 import {ctx} from "../script.js"
 
-export default class ConvexShape {
+export default class ConvexShape extends Triangle{
     points = []
     #color = "black"
     #strokeColor = null
@@ -36,9 +37,7 @@ export default class ConvexShape {
     }
 
     addPoints(points) {
-        for (const point of points) {
-            this.points.push(point)
-        }
+        this.points.push(...points)
     }
 
     #collisionPart(points, otherShape) {
@@ -71,6 +70,28 @@ export default class ConvexShape {
         }
 
         return true
+    }
+
+    getArea() {
+        let area = 0
+
+        for (let i = 0; i < this.points.length; i++) {
+            const point = this.points[i]
+            const nextPoint = this.points[(i + 1) % this.points.length]
+
+            area += (nextPoint.x - point.x) * (nextPoint.y + point.y)
+        }
+
+        return area
+    }
+
+    getWindingDirection() {
+        const area = this.getArea()
+
+        if (area < 0)
+            return 1
+
+        return -1
     }
 
     collidesWith(otherShape) {

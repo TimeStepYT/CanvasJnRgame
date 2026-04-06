@@ -67,13 +67,13 @@ export default class Game {
             }
 
             if (done) {
-                this.imagesLoaded()
+                this.#imagesLoaded()
                 clearInterval(interval)
             }
         }, 500)
     }
 
-    imagesLoaded() {
+    #imagesLoaded() {
         this.layers.push(new MainMenuLayer(this))
         requestAnimationFrame(() => this.animate())
     }
