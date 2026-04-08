@@ -3,7 +3,7 @@ import Triangle from "./Triangle.js"
 import Utils from "./Utils.js"
 import {ctx} from "../script.js"
 
-export default class ConvexShape extends Triangle{
+export default class ConvexShape extends Triangle {
     points = []
     #color = "black"
     #strokeColor = null

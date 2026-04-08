@@ -10,6 +10,20 @@ import Triangle from "./Triangle.js"
 
 export default class MainMenuLayer extends Layer {
 	testShape = null
+	testingShape = ConcaveShape.create([
+		new Point(313, 144),
+		new Point(279, 291),
+		new Point(111, 290),
+		new Point(254, 375),
+		new Point(214, 472),
+		new Point(355, 395),
+		new Point(463, 474),
+		new Point(415, 340),
+		new Point(496, 277),
+		new Point(342, 262)
+	])
+
+	oneTime = true
 
 	initButtons() {
 		const playButtonSize = new Size(200, 200)
@@ -54,6 +68,7 @@ export default class MainMenuLayer extends Layer {
 			this.testShape = ConcaveShape.create([pos])
 		else {
 			this.testShape.addPoints([pos])
+			this.testShape.updateConvexShapes()
 		}
 	}
 
@@ -84,9 +99,20 @@ export default class MainMenuLayer extends Layer {
 			new Point(1278, 0)
 		]).setColor("#be00be").draw()
 
+		if (this.oneTime)
+			this.testingShape.updateConvexShapes()
+
+		this.oneTime = false
+
 		if (this.testShape !== null) {
 			this.testShape.setColor("#f100f1").setStrokeColor("black").draw()
 		}
+		let shape = this.testingShape.setStrokeColor("black").setColor("#f100f1")
+		
+		if (shape.collidesWith(this.testShape))
+			shape.setColor("#00ff00")
+
+		shape.draw()
 
 		title.draw()
 	}
