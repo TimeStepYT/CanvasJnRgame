@@ -8,6 +8,10 @@ export default class ConvexShape extends Triangle {
     #color = "black"
     #strokeColor = null
 
+    #smallestOverlap = Infinity
+    #smallestAxis = null
+    #lastOtherShape = null
+
     static create(points) {
         let ret = new ConvexShape()
         ret.points = points
@@ -40,23 +44,23 @@ export default class ConvexShape extends Triangle {
         this.points.push(...points)
     }
 
-    #collisionPart(points, otherShape) {
+    #collisionPart(points) {
         for (let i = 0; i < points.length; i++) {
             const point = points[i]
             const nextPoint = points[(i + 1) % points.length]
             const edge = point.getEdge(nextPoint)
             const normal = new Point(-edge.y, edge.x)
 
-            const axisLength = Math.sqrt(normal.x ** 2 + normal.y ** 2)
+            const axisLength = normal.getLength()
 
             let projectedA = []
             let projectedB = []
 
             for (let vertex of this.points) {
-                projectedA.push(normal.dotProduct(vertex) / axisLength)
+                projectedA.push(normal.getDotProduct(vertex) / axisLength)
             }
-            for (let vertex of otherShape.points) {
-                projectedB.push(normal.dotProduct(vertex) / axisLength)
+            for (let vertex of this.#lastOtherShape.points) {
+                projectedB.push(normal.getDotProduct(vertex) / axisLength)
             }
 
 
@@ -64,6 +68,13 @@ export default class ConvexShape extends Triangle {
             const minB = Math.min(...projectedB)
             const maxA = Math.max(...projectedA)
             const maxB = Math.max(...projectedB)
+
+            const overlap = Math.min(maxA, maxB) - Math.max(minA, minB)
+
+            if (this.#smallestOverlap > overlap) {
+                this.#smallestOverlap = overlap
+                this.#smallestAxis = normal
+            }
 
             if (maxA < minB || minA > maxB)
                 return false
@@ -95,16 +106,63 @@ export default class ConvexShape extends Triangle {
     }
 
     collidesWith(otherShape) {
-        const thisShapeSA = this.#collisionPart(this.points, otherShape)
+        this.#smallestOverlap = Infinity
+        this.#smallestAxis = null
+        this.#lastOtherShape = otherShape
+
+        const thisShapeSA = this.#collisionPart(this.points)
         if (!thisShapeSA)
             return false
         
-        const otherShapeSA = this.#collisionPart(otherShape.points, otherShape)
+        const otherShapeSA = this.#collisionPart(otherShape.points)
         if (!otherShapeSA)
             return false
 
 
         return true
+    }
+
+    getCenter() {
+        let sumX = 0
+        let sumY = 0
+
+        for (let point of this.points) {
+            sumX += point.x
+            sumY += point.y
+        }
+
+        const x = sumX / this.points.length
+        const y = sumY / this.points.length
+
+        return new Point(x, y)
+    }
+
+    getDirectionToPoint(point) {
+        return this.getCenter().getEdge(point)
+    }
+
+    getDirectionToShape(shape) {
+        return this.getDirectionToPoint(shape.getCenter())
+    }
+
+    getMTV() {
+        if (this.#smallestAxis === null)
+            return null
+
+        const axis = this.#smallestAxis.getNormalized()
+        const overlap = this.#smallestOverlap
+        
+        // Adjust direction
+        const direction = this.getDirectionToShape(this.#lastOtherShape)
+        if (direction.getDotProduct(axis) < 0) {
+            axis.x *= -1
+            axis.y *= -1
+        }
+        
+        const x = axis.x * overlap
+        const y = axis.y * overlap
+
+        return new Point(x, y)
     }
 
     draw() {

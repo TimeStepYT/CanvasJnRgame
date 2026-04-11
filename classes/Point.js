@@ -13,7 +13,25 @@ export default class Point {
         return new Point(otherPoint.x - this.x, otherPoint.y - this.y)
     }
 
-    dotProduct(otherVector) {
+    getLength() {
+        return Math.sqrt(this.x ** 2 + this.y ** 2)
+    }
+
+    getNormalizedWithLength(length) {
+        const normalizedX = this.x / length
+        const normalizedY = this.y / length
+        const normalizedPoint = new Point(normalizedX, normalizedY)
+
+        return normalizedPoint
+    }
+
+    getNormalized() {
+        const length = this.getLength()
+    
+        return this.getNormalizedWithLength(length)
+    }
+
+    getDotProduct(otherVector) {
         return this.x * otherVector.x + this.y * otherVector.y
     }
 
