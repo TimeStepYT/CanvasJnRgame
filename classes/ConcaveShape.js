@@ -6,6 +6,7 @@ export default class ConcaveShape extends ConvexShape {
     points = []
     #convexShapes = []
     #lastShapeDirection = 0
+    #lastMTV = null
 
     static create(points) {
         let ret = new ConcaveShape()
@@ -34,13 +35,25 @@ export default class ConcaveShape extends ConvexShape {
         this.updateConvexShapes()
     }
 
+    getMTV() {
+        return this.#lastMTV
+    }
+
+    #twoConvexShapesCollide(thisShape, otherShape) {
+        this.#lastMTV = thisShape.getMTV()
+    }
+
     #collidesWithConvexShape(shape) {
         if (shape.points.length < 3)
             return false
 
         for (const convexShape of this.#convexShapes) {
-            if (shape.collidesWith(convexShape))
-                return true
+            if (!convexShape.collidesWith(shape))
+                continue
+
+            this.#twoConvexShapesCollide(convexShape, shape)
+
+            return true
         }
         return false
     }
@@ -53,8 +66,12 @@ export default class ConcaveShape extends ConvexShape {
 
         for (const thisConvexShape of this.#convexShapes) {
             for (const otherConvexShape of shape.#convexShapes) {
-                if (thisConvexShape.collidesWith(otherConvexShape))
-                    return true
+                if (!thisConvexShape.collidesWith(otherConvexShape))
+                    continue
+                
+                this.#twoConvexShapesCollide(thisConvexShape, otherConvexShape)
+
+                return true
             }
         }
         return false
